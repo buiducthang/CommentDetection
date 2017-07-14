@@ -1,0 +1,9 @@
+#! /bin/bash
+srcPath = $1
+desPath = $2
+cd srcPath
+python train.py
+cd desPath
+cd ..
+cp srcPath/spam.model ./
+cp srcPath/vocabs.obj ./

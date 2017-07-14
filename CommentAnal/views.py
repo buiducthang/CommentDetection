@@ -6,6 +6,8 @@ from django.shortcuts import render
 import json
 import sys
 import codecs
+import os
+from os.path import abspath, dirname
 sys.path.append('/home/ducthang/Desktop/Comment/comment/CommentAnal/binhnp/spam_detection/libsvm/python/')
 from train import *
 
@@ -66,5 +68,9 @@ def AddTrain(request):
             fileTrain.write(comment + '\n')
             print "comment-train: ", comment
             fileTrain.close()
-    #call(["ls","-l"])
+    #call(["","-l"])
+    srcPath = abspath(dirname(__name__)) + '/CommentAnal/binhnp/spam_detection/libsvm/python/'
+    desPath = abspath(dirname(__name__)) + '/'
+    #print srcPath
+    call(["sh", desPath +"/auto-train.sh" , srcPath , desPath])
     return HttpResponseRedirect('/comment/')

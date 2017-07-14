@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Test API</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+</head>
+
+<body>
+    <input name="comment" id="comment"/>
+    <button name="btnComment" id="btnComment">Comment</button>
+</body>
+
+</html> 
+
+<script>
+    var comment;
+    $(document).ready(function(){
+        
+        $('#btnComment').click(function(){
+            comment = $('#comment').val();
+            console.log("comment:" + comment);
+            $.ajax({
+                url: 'http://recommender.data-mining.vp9.vn:8080/comment/',
+                type: 'POST',
+                dataType: 'text',
+                contentType: 'application/json',
+                processData: false,
+                data: JSON.stringify({comment: comment}),
+                header:{'Access-Control-Allow-Origin': 'abc'},
+                success: function (data) {
+                    
+                    console.log("Data:", JSON.stringify(data));
+                    
+                },
+                error: function (err) {
+                    alert("Error: Cannot get data", err);
+                }
+            });
+        });
+    });
+</script>

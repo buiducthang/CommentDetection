@@ -6,7 +6,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <link href="https://fonts.googleapis.com/css?family=Alfa+Slab+One" rel="stylesheet"> 
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://code.jquery.com/jquery-2.2.4.js" integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI=" crossorigin="anonymous"></script>
+		
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <script
 			  src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
@@ -27,6 +28,15 @@
     .te{
       font-size: 20px;
     }
+
+    .hidden-btn{
+      margin: 10px;
+      margin-top: 20px;
+    }
+
+    .show-btn{
+      margin: 10px;
+    }
   </style>
 </head>
 <body>
@@ -39,7 +49,7 @@
     <a href="#"><span class="glyphicon glyphicon-info-sign te"></span></a>
     Chương trình này sẽ lọc các comment không hợp thuần phong mỹ tục
   </h5>
-  <form method="POST" action="{% url 'comment'%}">
+  <!--<form method="POST" action="{% url 'comment'%}">-->
     {% csrf_token %}
     <div class="form-group"> 
       <div class="row">
@@ -55,8 +65,33 @@
         </div>
       </div>
     </div>
-	<button type="submit" class="btn btn-success">Post</button>
-  </form>
+	<button type="" class="btn btn-success" id="btnPost">Post</button>
+  <!--</form>-->
+</div>
+
+<div class="container container-hidden">
+  <center>
+    <h3>Chương trình có nhận diện chính xác không ?</h3>
+    <a class="btn btn-success show-btn" id="btnExactly" name="Exactly" href="http://localhost:8081/comment/">Chính xác</a>
+    <button id="btnNotCorrect" name="NotCorrect" class="btn btn-danger show-btn">Không chính xác</button>
+  </center>
+  
+  <center>
+    <form method="POST" action="{% url 'addtrain'%}">
+      {% csrf_token %}
+      <button type="submit" id="btnNormal" name="Normal" class="btn btn-primary hidden-btn">Bình thường</button>
+      <input type="hidden" name="comment-train" id="iComment-train" value="">
+      
+      <button type="submit" id="btnPolitic" name="Politic" class="btn btn-warning hidden-btn">Liên quan đến chính trị</button>
+      
+
+      <button type="submit" id="btnBad" name="Bad" class="btn btn-danger hidden-btn">Nói tục, chửi bậy</button>
+      
+    </form>
+    
+  </center>
+  
+
 </div>
 <div class="clearfix col-1 col-sm-offset-5 centered">
 	<h3 class="text-success" id="passH3">{{comment}}</h3>
@@ -78,19 +113,71 @@
     $('#passH3').hide();
     $('#failedH3').hide();
 
-    var value = $('#check').val();
+    $('.container-hidden').hide();
+    $.noConflict();
+    $('#btnPost').click(function(){
+            comment = $('#comment').val();
+            console.log("comment:" + comment);
+            $.ajax({
+                url: '/comment/post/',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                  comment:$('#comment').val(),
+                  csrfmiddlewaretoken:$('input[name=csrfmiddlewaretoken]').val()
+                },
+                success: function (data) {
+                    
+                    console.log("Data:", JSON.stringify(data));
+                    
+                    console.log(data.check);
+                    if(data.check == 'showPass')
+                    {
+                      $('#passIcon').show();
+                      $('#passH3').show();
+                    }
+                    else
+                    {
+                      $('#failedIcon').show();
+                      $('#failedH3').show();
+                    }
 
-    if(value == 'showPass') checkPass = 'showPass'
-      else checkPass = 'showFailed';
-    
-    if(checkPass == 'showPass') {
-        $('#passIcon').show();
-        $('#passH3').show();
-    }
-      else if(value == 'showFailed') {
-          $('#failedIcon').show();
-          $('#failedH3').show();
-      }
+                    $('.container-hidden').show();
+                    $('.hidden-btn').hide();
+                },
+                error: function (err) {
+                    alert("Error: Cannot get data", err);
+                }
+            });
+    });  
+
+    //Cick Not Exactly
+    $('#btnNotCorrect').click(function(){
+      $('.show-btn').hide();
+      $('.hidden-btn').show();
+    });
+
+    //Click btn Normal
+    $('#btnNormal').click(function(){
+      addLabel('0 ');
+    });
+
+    //Click btn Politic
+    $('#btnPolitic').click(function(){
+      addLabel('2 ');
+    });
+
+    //Click btn Bad
+    $('#btnBad').click(function(){
+      addLabel('1 ');
+    });
   });
+
+  function addLabel(label)
+  {
+      var cmt = $('#comment').val();
+      cmt = cmt.replace(/(?:\r\n|\r|\n)/g, ' ');
+      $('#iComment-train').val(label + cmt);
+  }
 </script>
 
